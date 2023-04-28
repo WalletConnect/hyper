@@ -79,6 +79,8 @@ mod common;
 pub mod body;
 mod error;
 pub mod ext;
+#[doc(hidden)]
+pub mod metrics;
 #[cfg(test)]
 mod mock;
 pub mod rt;

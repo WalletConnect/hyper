@@ -46,7 +46,19 @@ impl Exec {
             Exec::Default => {
                 #[cfg(feature = "tcp")]
                 {
-                    tokio::task::spawn(fut);
+                    let handle = tokio::task::spawn(fut);
+
+                    tokio::task::spawn(async move {
+                        crate::counter!("debug_hyper_task_started", 1);
+
+                        let is_success = handle.await.is_ok();
+
+                        crate::counter!(
+                            "debug_hyper_task_completed",
+                            1,
+                            &[opentelemetry::KeyValue::new("success", is_success)]
+                        );
+                    });
                 }
                 #[cfg(not(feature = "tcp"))]
                 {
