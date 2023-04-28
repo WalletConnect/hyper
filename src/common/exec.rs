@@ -46,12 +46,13 @@ impl Exec {
             Exec::Default => {
                 #[cfg(feature = "tcp")]
                 {
-                    let handle = tokio::task::spawn(fut);
-
                     tokio::task::spawn(async move {
                         crate::counter!("debug_hyper_task_started", 1);
 
-                        let is_success = handle.await.is_ok();
+                        let is_success =
+                            tokio::time::timeout(std::time::Duration::from_secs(360), fut)
+                                .await
+                                .is_ok();
 
                         crate::counter!(
                             "debug_hyper_task_completed",
